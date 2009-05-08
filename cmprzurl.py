@@ -1,12 +1,21 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 import cgi
-import cgitb; cgitb.enable()
+import cgitb; cgitb.enable() # for cgi debug, remove it later
+from urlparse import urlparse
 
 def check_url(aurl):
     """
     Check whether the url is valid or not.
+    Although a valid URL is like: scheme://netloc/path;parameters?query#fragment
+    but here we make it simple.
     """
+    #
+    aurl = aurl.strip()
+    if aurl == '':
+	return False
+    if urlparse(aurl).scheme == '':
+	aurl = "http://" + aurl
     return True
 
 form = cgi.FieldStorage()
