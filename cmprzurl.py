@@ -25,6 +25,7 @@ def check_url(aurl):
 # By default, the compressed url is like http://vvoody.org/jUc2nA
 ALIAS_SIZE = 6
 MYDOMAIN = "vvoody.org"
+RANDSEED = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 query = os.environ['QUERY_STRING']
 form = cgi.FieldStorage()
@@ -41,8 +42,7 @@ if form.has_key('longurl') and check_url(longurl):
     con = sqlite3.connect('cmprzurl.db')
     con.isolation_level = None
     cur = con.cursor()
-    # ...
-    randseed = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    #
     goon, aliasgo = True, True
     #
     # 1. Insert longurl into db first to see if it had been mapped:
@@ -57,7 +57,7 @@ if form.has_key('longurl') and check_url(longurl):
     while aliasgo:
         alias = ""
         for i in range(ALIAS_SIZE):
-            alias += random.choice(randseed)
+            alias += random.choice(RANDSEED)
         try: # alias is primary key
             cur.execute("""update mapurl set key='%s' where longurl='%s';""" % (alias, longurl))
         except:
