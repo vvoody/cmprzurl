@@ -1,0 +1,85 @@
+cmprzurl 
+    - a simple implement of TinyURL.com and deploy easily on your own domain.
+
+==============
+Introduction:
+==============
+    Have you ever heard of tinyurl.com or is.gd?
+    Do you wanna make your domain have the ability to shorten long url?
+
+    Yes, all we need is 4 files.
+    Maybe you should read the section 'What each file do?' first ;-)
+
+=============
+Requirement:
+=============
+    * Apache web server and support .htaccess [2.0.63]
+    * SQLite3                                 [3.2.1]
+    * Python                                  [2.3.5]
+    * pysqlite2 (or sqlite3) module
+
+    # My environment is what you see in the brackets.
+
+===========
+Installed:
+===========
+    The following steps we are under root directory of your domain. e.g.:
+    http://vvoody.org -> /home/vvoody/vvoody.org/
+
+    0. Upload the files:
+
+       cmprzurl.py, redirect.py, dotaccess, cmprzurl.sql, (cmprzurl.db)
+
+    1. Create a sqlite3 database and a table using the following directive:
+
+       $ sqlite3 cmprzurl.db < cmprzurl.sql
+
+       # You can also skip this step by using the db I had created
+       	 named 'cmprzurl.db'.
+
+    2. Append the content of dotaccess into your .htaccess:
+
+       $ cat dotaccess >> .htaccess
+
+    3. Make the two scripts executable:
+
+       $ chmod +x cmprzurl.py redirect.py
+
+    4. Clean up & done:
+
+       $ rm dotaccess cmprzurl.sql
+
+====================
+What each file do?:
+====================
+    * cmprzurl.py
+
+      Generate an alias like 'eJk8pA' for mapping the long url,
+      then store the alias and longurl into database.
+
+    * redirect.py
+
+      Redirect the request url like 'http://vvoody.org/eJk8pA'
+      to the real url.
+
+    * dotaccess
+
+      Make the files/dirs under domain root directory works well
+      as before, but the alias like 'eJk8pA' can be redirected
+      correctly.
+
+    * cmprzurl.db
+
+      Store the aliases and their mapping longurls.
+
+=========
+License:
+=========
+    Copyright 2009 vvoody <wxj{AT}vvoody.org>
+    All rights reserved.
+
+    The programs are released under GNU General Public License version 3.
+    For license details, checkout:
+        http://www.gnu.org/copyleft/gpl.html
+
+Any problems please contact vvoody -> wxj_AT_vvoody.org
