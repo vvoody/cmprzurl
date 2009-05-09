@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import cgi, os
+import cgi, os, sys
 import cgitb; cgitb.enable()
 
 def check_alias( alias ):
@@ -27,10 +27,11 @@ if form.has_key('alias') and check_alias( form['alias'].value ):
     longurl = ""
     try:
         cur.execute("select longurl from mapurl where key='%s'" % alias)
-        record = cur.fetchone()
     except:
         print "Content-Type: text/html\n"
         print "Oooooops... Something failed :("
+	sys.exit(1)
+    record = cur.fetchone()
     cur.close()
     con.close()
     if record != None: # redirect the alias to longurl
