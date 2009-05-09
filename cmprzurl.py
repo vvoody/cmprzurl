@@ -22,15 +22,18 @@ def check_url(aurl):
         longurl = "http://" + aurl # 'g.cn' -> 'http://g.cn'
     return True
 
+# By default, the compressed url is like http://vvoody.org/jUc2nA
+ALIAS_SIZE = 6
+MYDOMAIN = "vvoody.org"
+
 query = os.environ['QUERY_STRING']
 form = cgi.FieldStorage()
-#longurl = query[(query.find('=')+1):] # remove 'longurl='
 longurl = query[::]
 longurl = longurl.strip()
 
 if form.has_key('longurl') and check_url(longurl):
     #
-    # generate unique string for mapping longurl &
+    # generate unique alias for mapping longurl &
     # connect the db and write into it
     import random
     from pysqlite2 import dbapi2 as sqlite3
@@ -40,29 +43,30 @@ if form.has_key('longurl') and check_url(longurl):
     cur = con.cursor()
     # ...
     randseed = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    goon = True
-    while goon:
-        #
-        # First, find whether the longurl has been mapped, then generate an alias
-        #
+    goon, aliasgo = True, True
+    #
+    # 1. Insert longurl into db first to see if it had been mapped:
+    #
+    try:
+        cur.execute("insert into mapurl values(NULL, '%s');" % longurl)
+    except:
+        aliasgo = False # No need to generate an alias
+    #
+    # 2. write the 'alias' into db:
+    #
+    while aliasgo:
         alias = ""
-        for i in range(6):
+        for i in range(ALIAS_SIZE):
             alias += random.choice(randseed)
-        #
-        # try write 'alias' and 'longurl' into db:
-        #
-	try: # alias is primary key
-	    cur.execute("""insert into mapurl values('%s', NULL);""" % alias)
-	except:
-	    del alias
-	    continue
-	try: # longurl is unique
-	    cur.execute("""update mapurl set longurl='%s' where key='%s';""" % (longurl, alias))
-	except: # The 'longurl' had been shorted ;-)
-	    break
-        goon = False
+        try: # alias is primary key
+            cur.execute("""update mapurl set key='%s' where longurl='%s';""" % (alias, longurl))
+        except:
+            del alias
+            continue
+        goon, aliasgo = False, False
     #
     # end while
+    #
     if goon == True: # fetch the alias of the already mapped longurl
         try:
             cur.execute("select key from mapurl where longurl='%s'" % longurl)
@@ -83,7 +87,7 @@ if form.has_key('longurl') and check_url(longurl):
     print """<html><body>
     <b>Now, visit your url via following link instead of the long one ;-)</b><br>
     <a href="http://%s/%s">http://%s/%s</a>
-    </body></html>""" % ('vvoody.org', alias, 'vvoody.org', alias) 
+    </body></html>""" % (MYDOMAIN, alias, MYDOMAIN, alias) 
     # end if
 else:
     print "Content-Type: text/html\n"
