@@ -85,6 +85,9 @@ Usage:
         <input type="submit" value="Shorten!">
     </form>
 
+    Then, 'cmprzurl.py' will generate an alias for the long url like:
+        http://xxxxxx.org/a9Y7Hz
+
 =========
 License:
 =========
