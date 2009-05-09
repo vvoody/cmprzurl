@@ -8,18 +8,24 @@ from urlparse import urlparse
 def check_url(aurl):
     """
     Check whether the url is valid or not.
+    
     Although a valid URL is like: scheme://netloc/path;parameters?query#fragment
     but here we make it simple.
+    http://yourdomain/j8ZhyA is invalid. Do not fool me :D
     """
     #
-    global longurl
+    global longurl, MYDOMAIN
     if aurl == '':
 	return False
     if aurl[:8] != 'longurl=':
         return False
     aurl, longurl = aurl[8:], longurl[8:]
-    if urlparse(aurl)[0] == '':    # scheme
-        longurl = "http://" + aurl # 'g.cn' -> 'http://g.cn'
+    urlelems = urlparse(aurl)          # in Python 2.3 it is a tuple not a class
+    if urlelems[0] == '':              # scheme
+        longurl = "http://" + aurl     # 'g.cn' -> 'http://g.cn'
+    if urlelems[1] == MYDOMAIN:        # /blog/?p=123 is ok, but /ak8DmN or /ak8DmN/
+        if urlelems[2][:-1].count('/') == 1:
+            return False
     return True
 
 # By default, the compressed url is like http://vvoody.org/jUc2nA
