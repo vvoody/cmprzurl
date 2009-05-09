@@ -26,6 +26,7 @@ def check_url(aurl):
 ALIAS_SIZE = 6
 MYDOMAIN = "vvoody.org"
 RANDSEED = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+SQLITE3DB = "cmprzurl.db"
 
 query = os.environ['QUERY_STRING']
 form = cgi.FieldStorage()
@@ -39,7 +40,13 @@ if form.has_key('longurl') and check_url(longurl):
     import random
     from pysqlite2 import dbapi2 as sqlite3
     #
-    con = sqlite3.connect('cmprzurl.db')
+    try:
+        con = sqlite3.connect(SQLITE3DB)
+    except:
+        print "Content-Type: text/html\n"
+        print "Failed to connect db %s." % SQLITE3DB
+        sys.exit(1)
+    #
     con.isolation_level = None
     cur = con.cursor()
     #
