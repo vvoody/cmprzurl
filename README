@@ -21,10 +21,10 @@ Requirement:
     # My environment is what you see in the brackets.
 
 ===========
-Installed:
+Installation:
 ===========
     The following steps we are under root directory of your domain. e.g.:
-    http://vvoody.org -> /home/vvoody/vvoody.org/
+    http://xxxxxx.org -> /home/xxxxxx/xxxxxx.org/
 
     0. Upload the files:
 
@@ -59,7 +59,7 @@ What each file do?:
 
     * redirect.py
 
-      Redirect the request url like 'http://vvoody.org/eJk8pA'
+      Redirect the request url like 'http://xxxxxx.org/eJk8pA'
       to the real url.
 
     * dotaccess
@@ -71,6 +71,19 @@ What each file do?:
     * cmprzurl.db
 
       Store the aliases and their mapping longurls.
+
+=======
+Usage:
+=======
+    Type the url from browser address bar directly:
+        http://xxxxxx.org/cmprzurl.py?longurl=http://www.faqs.org/rfcs/rfc3022.html
+
+    Or, you can generate a html form like:
+
+    <form method="post" action="http://xxxxxx.org/cmprzurl.py">
+        <input type="text" name="longurl"> <!-- must be 'longurl' or modify the source code -->
+	<input type="submit" value="Shorten!">
+    </form>
 
 =========
 License:
