@@ -82,7 +82,7 @@ Usage:
 
     <form method="post" action="http://xxxxxx.org/cmprzurl.py">
         <input type="text" name="longurl"> <!-- must be 'longurl' or modify the source code -->
-	<input type="submit" value="Shorten!">
+        <input type="submit" value="Shorten!">
     </form>
 
 =========
