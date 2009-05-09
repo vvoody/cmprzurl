@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import cgi
-import os
+import os, sys
 import cgitb; cgitb.enable() # for cgi debug, remove it later
 from urlparse import urlparse
 
@@ -12,20 +12,23 @@ def check_url(aurl):
     but here we make it simple.
     """
     #
+    global longurl
     if aurl == '':
 	return False
-    if urlparse(aurl)[0] == '': # scheme
-	aurl = "http://" + aurl
+    if aurl[:8] != 'longurl=':
+        return False
+    aurl, longurl = aurl[8:], longurl[8:]
+    if urlparse(aurl)[0] == '':    # scheme
+        longurl = "http://" + aurl # 'g.cn' -> 'http://g.cn'
     return True
 
 query = os.environ['QUERY_STRING']
 form = cgi.FieldStorage()
-# get the longurl form query
-longurl = query[(query.find('=')+1):] # remove 'longurl='
+#longurl = query[(query.find('=')+1):] # remove 'longurl='
+longurl = query[::]
 longurl = longurl.strip()
 
 if form.has_key('longurl') and check_url(longurl):
-    print "Content-Type: text/html\n"
     #
     # generate unique string for mapping longurl &
     # connect the db and write into it
@@ -39,36 +42,50 @@ if form.has_key('longurl') and check_url(longurl):
     randseed = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
     goon = True
     while goon:
-        # generate a random string for mapping the longurl
-        shorturl = ""
-        for i in range(6):
-            shorturl += random.choice(randseed)
         #
-        # try write 'shorturl' and 'longurl' into db:
-        # ...
-        # except: used map string or same url
-        #     del shorturl
-        #     continue
-	print shorturl
-	try:
-	    inskey = """insert into mapurl values('%s', NULL);""" % shorturl
-	    cur.execute(inskey)
+        # First, find whether the longurl has been mapped, then generate an alias
+        #
+        alias = ""
+        for i in range(6):
+            alias += random.choice(randseed)
+        #
+        # try write 'alias' and 'longurl' into db:
+        #
+	try: # alias is primary key
+	    cur.execute("""insert into mapurl values('%s', NULL);""" % alias)
 	except:
-	    del shorturl
+	    del alias
 	    continue
-	try:
-	    inslongurl = """update mapurl set longurl='%s' where key='%s';""" % (longurl, shorturl)
-	    cur.execute(inslongurl)
-	except: # longurl is not unique, means that it had been shorted ;-)
-	    # print """select key from mapurl where longurl=form['longurl'].value"""
-	    print "This url had been shorted ;-)"
+	try: # longurl is unique
+	    cur.execute("""update mapurl set longurl='%s' where key='%s';""" % (longurl, alias))
+	except: # The 'longurl' had been shorted ;-)
 	    break
         goon = False
     #
+    # end while
+    if goon == True: # fetch the alias of the already mapped longurl
+        try:
+            cur.execute("select key from mapurl where longurl='%s'" % longurl)
+            alias = cur.fetchone()[0]
+        except:
+            print "Content-Type: text/html\n"
+            print "Ooooooooops. Something failed :("
+            sys.exit(1)
+    #
+    # close the db operation
+    #
     cur.close()
     con.close()
-    # no except, genrate htmls. end here
-    print ": ", longurl
+    #
+    # generate htmls
+    #
+    print "Content-Type: text/html\n"
+    print """<html><body>
+    <b>Now, visit your url via following link instead of the long one ;-)</b><br>
+    <a href="http://%s/%s">http://%s/%s</a>
+    </body></html>""" % ('vvoody.org', alias, 'vvoody.org', alias) 
+    # end if
 else:
     print "Content-Type: text/html\n"
     print "Ooooops... Check you url!"
+# end script
