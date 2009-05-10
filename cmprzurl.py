@@ -16,7 +16,7 @@ def check_url(aurl):
     #
     global longurl, MYDOMAIN
     if aurl == '':
-	return False
+        return False
     if aurl[:8] != 'longurl=':
         return False
     aurl, longurl = aurl[8:], longurl[8:]
