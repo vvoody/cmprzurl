@@ -16,14 +16,15 @@ def check_url(aurl):
     #
     global longurl, MYDOMAIN
     if aurl == '':
-	return False
+        return False
     if aurl[:8] != 'longurl=':
         return False
     aurl, longurl = aurl[8:], longurl[8:]
-    urlelems = urlparse(aurl)          # in Python 2.3 it is a tuple not a class
-    if urlelems[0] == '':              # scheme
+    # in Python 2.3 urlparse() returns tuple not class :(
+    if urlparse(aurl)[0] == '':        # scheme
         longurl = "http://" + aurl     # 'g.cn' -> 'http://g.cn'
-    if urlelems[1] == MYDOMAIN:        # /blog/?p=123 is ok, but /ak8DmN or /ak8DmN/
+    urlelems = urlparse(longurl)
+    if urlelems[1] == MYDOMAIN:        # /blog/?p=123 is ok, but /ak8DmN or /ak8DmN/ or /blog
         if urlelems[2][:-1].count('/') == 1:
             return False
     return True
@@ -34,10 +35,12 @@ MYDOMAIN = "vvoody.org"
 RANDSEED = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 SQLITE3DB = "cmprzurl.db"
 
+# Get whole query, cgi.FieldStorage() is not enough :(
 query = os.environ['QUERY_STRING']
 form = cgi.FieldStorage()
 longurl = query[::]
 longurl = longurl.strip()
+# longurl is like: longurl=http://foo.com/bar?id=1234&longurl=fiajjfaejfja
 
 if form.has_key('longurl') and check_url(longurl):
     #
