@@ -16,16 +16,16 @@ def check_url(aurl):
     #
     global longurl, MYDOMAIN
     if aurl == '':
-        return False
+	return False
     if aurl[:8] != 'longurl=':
         return False
     aurl, longurl = aurl[8:], longurl[8:]
     # in Python 2.3 urlparse() returns tuple not class :(
-    if urlparse(aurl)[0] == '':        # scheme
-        longurl = "http://" + aurl     # 'g.cn' -> 'http://g.cn'
+    if urlparse(aurl)[0] == '':          # scheme
+        longurl = "http://" + aurl       # 'g.cn' -> 'http://g.cn'
     urlelems = urlparse(longurl)
-    if urlelems[1] == MYDOMAIN:        # /blog/?p=123 is ok, but /ak8DmN or /ak8DmN/ or /blog
-        if urlelems[2][:-1].count('/') == 1:
+    if urlelems[1] == MYDOMAIN:          # /blog/?p=123 is ok, but /ak8DmN or /ak8DmN/ or /blog
+        if longurl[:-1].count('/') == 3: # scheme://mydomain.com/blabla[/] is invalid
             return False
     return True
 
