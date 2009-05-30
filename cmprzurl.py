@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 
+# by vvoody <wxj{AT}vvoody.org>
+# Licensed under GPLv3
+
 import cgi
 import os, sys
 import cgitb; cgitb.enable() # for cgi debug, remove it later
